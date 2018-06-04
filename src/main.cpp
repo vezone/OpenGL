@@ -41,15 +41,6 @@ int main(void)
 		return -1;
 	}
 
-	//int(num);
-	float(num);
-	num = 7.0f;
-	log(num);
-	std::string(foo);
-	foo = "value";
-	std::cout << foo << "\n";
-
-	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1);
 
@@ -62,10 +53,10 @@ int main(void)
 	
 	{
 		float positions[] = {
-			0.0f, 0.0f, 0.0f, 0.0f, //0
-			50.0f, 0.0f, 1.0f, 0.0f, //1
-			50.0f, 50.0f, 1.0f, 1.0f, //2
-			0.0f, 50.0f, 0.0f, 1.0f  //3
+			-50.0f, -50.0f, 0.0f, 0.0f, //0
+			 50.0f, -50.0f, 1.0f, 0.0f, //1
+			 50.0f,  50.0f, 1.0f, 1.0f, //2
+			-50.0f,  50.0f, 0.0f, 1.0f  //3
 		};
 
 		unsigned int indices[] = {
@@ -92,14 +83,11 @@ int main(void)
 
 		Shader shader("res/shaders/Basic.shader");
 		shader.Bind();
-		//shader.SetUniform4f("u_Color", 0.8f, 0.3f, 0.8f, 1.0f);
 		
-
 		Texture texture("res/textures/soundub.jpg");
 		texture.Bind();
 		shader.SetUniform1i("u_Texture", 0);
 
-		//Testing our binding stuff
 		va.Unbind();
 		vb.Unbind();
 		ib.Unbind();
@@ -113,31 +101,31 @@ int main(void)
 
 		float r = 0.0f, incriment = 0.05f;
 		
-		glm::vec3 translation = glm::vec3(0, 0, 0);;
+		glm::vec3 translation1 = glm::vec3(0, 0, 0),
+				  translation2 = glm::vec3(0, 0, 0);
 		glm::mat4 model;
 		glm::mat4 mvp;
 
 		while (!glfwWindowShouldClose(window))
 		{
-			/* Render here */
 			render.Clear();
 
 			ImGui_ImplGlfwGL3_NewFrame();
-			
-			/*changing matrices stuff in runtime loop*/
-			model = glm::translate(glm::mat4(1.0f), translation);
-			//OpenGL use column major matrices, so
-			//MVP becomes PVM thats reason why it's looks
-			//like this
-			mvp = proj * view * model;
 
-			shader.Bind();
-			//shader.SetUniform4f("u_Color", r, 0.3f, 0.8f, 1.0f);
-			shader.SetUniformMat4("u_MVP", mvp);
+			{
+				model = glm::translate(glm::mat4(1.0f), translation1);
+				mvp = proj * view * model;
+				shader.Bind();
+				shader.SetUniformMat4("u_MVP", mvp);
+				render.Draw(va, ib, shader);
+			}
 
-			/*GLCall(glDrawArrays(GL_LINES, 0, 2));*/
-			
-			render.Draw(va, ib, shader);
+			{
+				model = glm::translate(glm::mat4(1.0f), translation2);
+				mvp = proj * view * model;
+				shader.SetUniformMat4("u_MVP", mvp);
+				render.Draw(va, ib, shader);
+			}
 
 			if (r > 1.0f)
 				incriment = -0.05f;
@@ -147,7 +135,8 @@ int main(void)
 			r += incriment;
 
 			{
-				ImGui::SliderFloat3("Translation", &translation.x, 0.0f, 960.0f);   
+				ImGui::SliderFloat3("Translation1", &translation1.x, 0.0f, 960.0f);  
+				ImGui::SliderFloat3("Translation2", &translation2.x, 0.0f, 960.0f);
 				ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			}
 
