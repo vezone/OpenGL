@@ -13,7 +13,9 @@
 #include "VertexBufferLayout.h"
 #include "Shader.h"
 #include "Texture.h"
+
 #include "tests\TestClearColor.h" //Test 1
+#include "tests\Menu.h" //Test menu
 
 #include "glm\glm.hpp"
 #include "glm\gtc\matrix_transform.hpp"
@@ -55,31 +57,20 @@ int main(void)
 	{
 		Renderer render;
 
-		ImGui::CreateContext();
-		ImGui_ImplGlfwGL3_Init(window, true);
-		ImGui::StyleColorsDark();
-
-		tests::TestClearColor TClearColor;
+		tests::Menu menu(window);
 
 		while (!glfwWindowShouldClose(window))
 		{
 			render.Clear();
 			
-			TClearColor.OnUpdate(0.0f);
-			TClearColor.OnRender();
-
-			ImGui_ImplGlfwGL3_NewFrame();
-			TClearColor.OnImGUIRender(); //
-			ImGui::Render();
-			ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
+			menu.OnUpdate(0.0f);
+			menu.OnImGUIRender();
+			menu.OnRender();
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
 	}
-
-	ImGui_ImplGlfwGL3_Shutdown();
-	ImGui::DestroyContext();
 
 	glfwTerminate();
 	return 0;
